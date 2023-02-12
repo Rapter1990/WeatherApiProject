@@ -8,8 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
 
@@ -17,6 +16,8 @@ import java.util.Objects;
 @Table(name = "locations")
 @Data
 @RequiredArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Location {
 
     @Id
@@ -64,5 +65,11 @@ public class Location {
             return false;
         Location other = (Location) obj;
         return Objects.equals(code, other.code);
+    }
+
+    @Override
+    public String toString() {
+        return "Location [code=" + code + ", cityName=" + cityName + ", regionName=" + regionName + ", countryName="
+                + countryName + ", countryCode=" + countryCode + ", enabled=" + enabled + ", trashed=" + trashed + "]";
     }
 }
