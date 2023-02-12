@@ -35,7 +35,7 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
     }
 
     @Test
-    public void testListSuccess() {
+    public void testLocationListSuccess() {
 
         // given
         Location location = Location.builder()
@@ -54,5 +54,52 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
         // then
         assertThat(locations).isNotEmpty();
         locations.forEach(System.out::println);
+    }
+
+    @Test
+    public void testGetLocationNotFound() {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        String code = "ABCD";
+
+        // when
+        repository.save(location);
+        Location findlocationByCode = repository.findByCode(code);
+
+        // then
+        assertThat(findlocationByCode).isNull();
+    }
+
+    @Test
+    public void testGetLocationFound() {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        String code = "NYC_USA";
+
+        // when
+        repository.save(location);
+        Location findlocationByCode = repository.findByCode(code);
+
+        // then
+        assertThat(findlocationByCode).isNotNull();
+        assertThat(findlocationByCode.getCode()).isEqualTo(code);
     }
 }

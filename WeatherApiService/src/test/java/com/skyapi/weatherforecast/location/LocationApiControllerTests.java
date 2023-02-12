@@ -132,4 +132,62 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .andExpect(jsonPath("$[1].enabled", is(true)))
                 .andDo(print());
     }
+
+    @Test
+    public void testGetLocationShouldReturn405MethodNotAllowed() throws Exception {
+
+        // given
+        // when
+
+        // then
+        String requestURI = END_POINT_PATH + "/ABCDEF";
+        mockMvc.perform(post(requestURI))
+                .andExpect(status().isMethodNotAllowed())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetLocationShouldReturn404NotFound() throws Exception {
+
+        // given
+        // when
+
+        // then
+        String requestURI = END_POINT_PATH + "/ABCDEF";
+        mockMvc.perform(get(requestURI))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetLocationShouldReturn200OK() throws Exception {
+
+        // given
+        String code = "LACA_USA";
+        String requestURI = END_POINT_PATH + "/" + code;
+
+        Location location = Location.builder()
+                .code("LACA_USA")
+                .cityName("Los Angeles")
+                .regionName("California")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        // when
+        Mockito.when(service.get(code)).thenReturn(location);
+
+        // then
+        mockMvc.perform(get(requestURI))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.code", is("LACA_USA")))
+                .andExpect(jsonPath("$.city_name", is("Los Angeles")))
+                .andExpect(jsonPath("$.region_name", is("California")))
+                .andExpect(jsonPath("$.country_name", is("United States of America")))
+                .andExpect(jsonPath("$.country_code", is("US")))
+                .andExpect(jsonPath("$.enabled", is(true)))
+                .andDo(print());
+    }
 }

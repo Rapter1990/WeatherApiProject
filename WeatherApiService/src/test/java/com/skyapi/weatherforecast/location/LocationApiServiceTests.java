@@ -88,4 +88,35 @@ public class LocationApiServiceTests extends BaseServiceTest {
         assertThat(locations.get(1).getCountryName()).isEqualTo("United States of America");
         assertThat(locations.get(1).isEnabled()).isEqualTo(true);
     }
+
+
+    @Test
+    public void shouldReturnLocation(){
+
+        // given
+        Location location1 = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        String code = "NYC_USA";
+
+        // when
+        when(locationRepository.findByCode(code)).thenReturn(location1);
+
+        // then
+        Location locationReturn = service.get(code);
+        assertThat(locationReturn).isNotNull();
+        assertThat(locationReturn.getCode()).isEqualTo("NYC_USA");
+        assertThat(locationReturn.getCityName()).isEqualTo("New York City");
+        assertThat(locationReturn.getRegionName()).isEqualTo("New York");
+        assertThat(locationReturn.getCountryCode()).isEqualTo("US");
+        assertThat(locationReturn.getCountryName()).isEqualTo("United States of America");
+        assertThat(locationReturn.isEnabled()).isEqualTo(true);
+
+    }
 }
