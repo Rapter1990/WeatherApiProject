@@ -17,7 +17,7 @@ import java.util.Objects;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class Location {
 
     @Id

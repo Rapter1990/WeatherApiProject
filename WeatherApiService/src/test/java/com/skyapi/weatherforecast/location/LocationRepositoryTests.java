@@ -102,4 +102,48 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
         assertThat(findlocationByCode).isNotNull();
         assertThat(findlocationByCode.getCode()).isEqualTo(code);
     }
+
+    @Test
+    public void testUpdateLocation() {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .trashed(false)
+                .build();
+
+        String code = "NYC_USA";
+
+        // when
+        repository.save(location);
+
+        Location findlocationByCode = repository.findByCode(code);
+
+        findlocationByCode.setCityName("New York City Updated");
+        findlocationByCode.setRegionName("New York Updated");
+        findlocationByCode.setCountryCode("US");
+        findlocationByCode.setCountryName("United States of America Updated");
+        findlocationByCode.setEnabled(true);
+        findlocationByCode.setTrashed(false);
+
+        // when
+        repository.save(findlocationByCode);
+
+        Location updatedLocation = repository.findByCode(code);
+
+        // then
+        assertThat(updatedLocation).isNotNull();
+        assertThat(updatedLocation.getCode()).isEqualTo("NYC_USA");
+        assertThat(updatedLocation.getCityName()).isEqualTo("New York City Updated");
+        assertThat(updatedLocation.getRegionName()).isEqualTo("New York Updated");
+        assertThat(updatedLocation.getCountryCode()).isEqualTo("US");
+        assertThat(updatedLocation.getCountryName()).isEqualTo("United States of America Updated");
+        assertThat(updatedLocation.isEnabled()).isEqualTo(true);
+
+    }
 }

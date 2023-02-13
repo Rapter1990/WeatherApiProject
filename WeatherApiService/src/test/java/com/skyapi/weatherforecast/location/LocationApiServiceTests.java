@@ -119,4 +119,57 @@ public class LocationApiServiceTests extends BaseServiceTest {
         assertThat(locationReturn.isEnabled()).isEqualTo(true);
 
     }
+
+    @Test
+    public void givenLocationObject_whenUpdateLocation_thenReturnLocationBook(){
+
+        // given
+        Location savedLocation = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .trashed(false)
+                .build();
+
+        String code = "NYC_USA";
+
+        Location changedLocation = savedLocation.toBuilder()
+                .code("NYC_USA")
+                .cityName("New York City Updated")
+                .regionName("New York Updated")
+                .countryCode("US")
+                .countryName("United States of America Updated")
+                .enabled(true)
+                .trashed(false)
+                .build();
+
+        // when
+        when(locationRepository.findByCode(code)).thenReturn(savedLocation);
+        when(locationRepository.save(changedLocation)).thenReturn(changedLocation);
+
+        // then
+        Location location = locationRepository.findByCode(code);
+
+        location.setCityName(changedLocation.getCityName());
+        location.setRegionName(changedLocation.getRegionName());
+        location.setCountryCode(changedLocation.getCountryCode());
+        location.setCountryName(changedLocation.getCountryName());
+        location.setEnabled(changedLocation.isEnabled());
+        location.setTrashed(changedLocation.isEnabled());
+
+        Location updatedLocation =  locationRepository.save(location);
+
+        assertThat(updatedLocation).isNotNull();
+        assertThat(updatedLocation.getCode()).isEqualTo("NYC_USA");
+        assertThat(updatedLocation.getCityName()).isEqualTo("New York City Updated");
+        assertThat(updatedLocation.getRegionName()).isEqualTo("New York Updated");
+        assertThat(updatedLocation.getCountryCode()).isEqualTo("US");
+        assertThat(updatedLocation.getCountryName()).isEqualTo("United States of America Updated");
+        assertThat(updatedLocation.isEnabled()).isEqualTo(true);
+        assertThat(updatedLocation.isTrashed()).isEqualTo(false);
+    }
+
 }
