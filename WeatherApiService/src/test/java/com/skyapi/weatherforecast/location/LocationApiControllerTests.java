@@ -12,9 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Collections;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -250,6 +248,32 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .andExpect(jsonPath("$.country_code", is("US")))
                 .andExpect(jsonPath("$.country_name", is("United States of America")))
                 .andExpect(jsonPath("$.enabled", is(true)))
+                .andDo(print());
+    }
+
+    @Test
+    public void testDeleteLocationShouldReturn404NotFound() throws Exception {
+
+        String code = "NYC_USA";
+        String requestURI = END_POINT_PATH + "/" + code;
+
+        Mockito.doThrow(LocationNotFoundException.class).when(service).delete(code);
+
+        mockMvc.perform(delete(requestURI))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testDeleteLocationShouldReturn204NoContent() throws Exception {
+
+        String code = "NYC_USA";
+        String requestURI = END_POINT_PATH + "/" + code;
+
+        Mockito.doNothing().when(service).delete(code);
+
+        mockMvc.perform(delete(requestURI))
+                .andExpect(status().isNoContent())
                 .andDo(print());
     }
 }

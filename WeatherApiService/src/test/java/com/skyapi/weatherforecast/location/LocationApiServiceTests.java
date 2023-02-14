@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LocationApiServiceTests extends BaseServiceTest {
 
@@ -121,7 +121,7 @@ public class LocationApiServiceTests extends BaseServiceTest {
     }
 
     @Test
-    public void givenLocationObject_whenUpdateLocation_thenReturnLocationBook(){
+    public void givenLocationObject_whenUpdateLocation_thenReturnLocation(){
 
         // given
         Location savedLocation = Location.builder()
@@ -151,7 +151,7 @@ public class LocationApiServiceTests extends BaseServiceTest {
         when(locationRepository.save(changedLocation)).thenReturn(changedLocation);
 
         // then
-        Location location = locationRepository.findByCode(code);
+        Location location = service.get(code);
 
         location.setCityName(changedLocation.getCityName());
         location.setRegionName(changedLocation.getRegionName());
@@ -172,4 +172,28 @@ public class LocationApiServiceTests extends BaseServiceTest {
         assertThat(updatedLocation.isTrashed()).isEqualTo(false);
     }
 
+    @Test
+    public void givenLocationObject_whenDeleteLocation_thenReturnNullObject() throws LocationNotFoundException {
+
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .trashed(false)
+                .build();
+
+        String code = "NYC_USA";
+
+        // when
+        when(locationRepository.findByCode(code)).thenReturn(location);
+        doNothing().when(locationRepository).trashByCode(code);
+
+        service.delete(code);
+
+        // Assert
+        verify(locationRepository, times(1)).trashByCode(code);
+    }
 }

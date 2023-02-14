@@ -15,7 +15,7 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
     private LocationRepository repository;
 
     @Test
-    public void testAddSuccess() {
+    public void testAddLocationSuccess() {
 
         // given
         Location location = new Location();
@@ -104,7 +104,7 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
     }
 
     @Test
-    public void testUpdateLocation() {
+    public void testUpdateLocationSuccess() {
 
         // given
         Location location = Location.builder()
@@ -145,5 +145,32 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
         assertThat(updatedLocation.getCountryName()).isEqualTo("United States of America Updated");
         assertThat(updatedLocation.isEnabled()).isEqualTo(true);
 
+    }
+
+
+    @Test
+    public void testTrashLocationSuccess() {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .trashed(false)
+                .build();
+
+        // when
+        repository.save(location);
+
+        String code = "NYC_USA";
+        repository.trashByCode(code);
+
+        Location deletedLocation = repository.findByCode(code);
+
+        // then
+        assertThat(deletedLocation).isNull();
     }
 }
