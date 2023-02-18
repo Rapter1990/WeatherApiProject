@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -116,12 +117,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public ErrorDTO handleGenericException(HttpServletRequest request, Exception ex) {
+    public ResponseEntity<ErrorDTO> handleGenericException(HttpServletRequest request, Exception ex) {
+
+        /*
+            List<String> stackTraceList = new ArrayList<>();
+            for (String line : Arrays.toString(ex.getStackTrace()).split("\n")) {
+                stackTraceList.add(line.trim());
+            }
+
+
+        List<String> details = Arrays.stream(ex.getStackTrace())
+                .map(StackTraceElement::toString)
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+         */
 
         List<String> details = new ArrayList<String>();
-        details.add(ex.getMessage());
+        details.add(ex.toString());
 
         ErrorDTO error = new ErrorDTO.ErrorDTOBuilder()
                 .timestamp(LocalDateTime.now())
@@ -133,6 +146,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         LOGGER.error("GlobalExceptionHandler | handleHttpMessageNotReadable | ex : " + ex );
 
-        return error;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }
