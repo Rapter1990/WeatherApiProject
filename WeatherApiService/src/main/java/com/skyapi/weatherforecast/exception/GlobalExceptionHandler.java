@@ -45,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .httpStatus(httpStatus)
                 .build();
 
-        LOGGER.error("GlobalExceptionHandler | handleHttpRequestMethodNotSupported", error);
+        LOGGER.error("GlobalExceptionHandler | handleHttpRequestMethodNotSupported | ex : " + ex );
 
         return ResponseEntity.status(status).body(error);
 
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
 
-        LOGGER.error("GlobalExceptionHandler | handleMethodArgumentNotValid", errors);
+        LOGGER.error("GlobalExceptionHandler | handleMethodArgumentNotValid | ex : " + ex );
 
         return ResponseEntity.badRequest()
                 .body(errors);
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .httpStatus(httpStatus)
                 .build();
 
-        LOGGER.error("GlobalExceptionHandler | handleMissingServletRequestParameter", error);
+        LOGGER.error("GlobalExceptionHandler | handleMissingServletRequestParameter | ex : " + ex );
 
         return ResponseEntity.status(status).body(error);
 
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .httpStatus(httpStatus)
                 .build();
 
-        LOGGER.error("GlobalExceptionHandler | handleHttpMessageNotReadable", error);
+        LOGGER.error("GlobalExceptionHandler | handleHttpMessageNotReadable | ex : " + ex );
 
         return ResponseEntity.status(status).body(error);
 
@@ -116,6 +116,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
     public ErrorDTO handleGenericException(HttpServletRequest request, Exception ex) {
 
         List<String> details = new ArrayList<String>();
@@ -129,7 +131,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                 .build();
 
-        LOGGER.error(ex.getMessage(), ex);
+        LOGGER.error("GlobalExceptionHandler | handleHttpMessageNotReadable | ex : " + ex );
 
         return error;
     }
