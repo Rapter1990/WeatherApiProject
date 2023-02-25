@@ -1,4 +1,4 @@
-package com.skyapi.weatherforecast.location;
+package com.skyapi.weatherforecast.location.repository;
 
 import com.skyapi.weatherforecast.common.Location;
 import org.springframework.data.jpa.repository.JpaRepository;

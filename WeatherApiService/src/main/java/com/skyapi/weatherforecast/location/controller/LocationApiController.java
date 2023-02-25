@@ -1,6 +1,8 @@
-package com.skyapi.weatherforecast.location;
+package com.skyapi.weatherforecast.location.controller;
 
 import com.skyapi.weatherforecast.common.Location;
+import com.skyapi.weatherforecast.exception.LocationNotFoundException;
+import com.skyapi.weatherforecast.location.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

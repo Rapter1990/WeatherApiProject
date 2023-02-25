@@ -13,14 +13,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -55,13 +52,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // handleMethodArgumentNotValid : triggers when @Valid fails
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
+
+        List<String> details = new ArrayList<String>();
+        ex.getBindingResult().getFieldErrors().forEach(err -> {
+                String errorMessage = err.getDefaultMessage();
+                details.add(errorMessage);
+                }
+        );
+
+        HttpStatus httpStatus = HttpStatus.valueOf(status.value());
+
+        ErrorDTO error = new ErrorDTO.ErrorDTOBuilder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .errorDetails(details)
+                .path(request.getContextPath())
+                .httpStatus(httpStatus)
+                .build();
+
+        //Map<String, String> errors = new HashMap<>();
+        //ex.getBindingResult().getFieldErrors().forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
 
         LOGGER.error("GlobalExceptionHandler | handleMethodArgumentNotValid | ex : " + ex );
 
-        return ResponseEntity.badRequest()
-                .body(errors);
+        return new ResponseEntity<>(error, headers, status);
     }
 
     // handleMissingServletRequestParameter : triggers when there are missing parameters

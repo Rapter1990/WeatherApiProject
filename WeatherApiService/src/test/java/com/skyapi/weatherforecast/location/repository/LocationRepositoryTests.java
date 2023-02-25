@@ -1,7 +1,8 @@
-package com.skyapi.weatherforecast.location;
+package com.skyapi.weatherforecast.location.repository;
 
 import com.skyapi.weatherforecast.base.BaseRepositoryTests;
 import com.skyapi.weatherforecast.common.Location;
+import com.skyapi.weatherforecast.location.repository.LocationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
