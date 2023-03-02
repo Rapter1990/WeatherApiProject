@@ -2,13 +2,15 @@ package com.skyapi.weatherforecast.location.repository;
 
 import com.skyapi.weatherforecast.base.BaseRepositoryTests;
 import com.skyapi.weatherforecast.common.Location;
-import com.skyapi.weatherforecast.location.repository.LocationRepository;
+import com.skyapi.weatherforecast.common.RealtimeWeather;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LocationRepositoryTests extends BaseRepositoryTests {
 
@@ -32,7 +34,7 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
 
         // then
         assertThat(savedLocation).isNotNull();
-        assertThat(savedLocation.getCode()).isEqualTo("NYC_USA");
+        assertEquals(savedLocation.getCode(), "NYC_USA");
     }
 
     @Test
@@ -101,7 +103,7 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
 
         // then
         assertThat(findlocationByCode).isNotNull();
-        assertThat(findlocationByCode.getCode()).isEqualTo(code);
+        assertEquals(findlocationByCode.getCode(), code);
     }
 
     @Test
@@ -139,12 +141,12 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
 
         // then
         assertThat(updatedLocation).isNotNull();
-        assertThat(updatedLocation.getCode()).isEqualTo("NYC_USA");
-        assertThat(updatedLocation.getCityName()).isEqualTo("New York City Updated");
-        assertThat(updatedLocation.getRegionName()).isEqualTo("New York Updated");
-        assertThat(updatedLocation.getCountryCode()).isEqualTo("US");
-        assertThat(updatedLocation.getCountryName()).isEqualTo("United States of America Updated");
-        assertThat(updatedLocation.isEnabled()).isEqualTo(true);
+        assertEquals(updatedLocation.getCode(), "NYC_USA");
+        assertEquals(updatedLocation.getCityName(), "New York City Updated");
+        assertEquals(updatedLocation.getRegionName(), "New York Updated");
+        assertEquals(updatedLocation.getCountryCode(), "US");
+        assertEquals(updatedLocation.getCountryName(), "United States of America Updated");
+        assertEquals(updatedLocation.isEnabled(), true);
 
     }
 
@@ -173,5 +175,57 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
 
         // then
         assertThat(deletedLocation).isNull();
+    }
+
+    @Test
+    public void testAddRealtimeWeatherData() {
+        String code = "NYC_USA";
+
+        // given
+        Location location = Location.builder()
+                .code(code)
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .trashed(false)
+                .realtimeWeather(null)
+                .build();
+
+        repository.save(location);
+
+        Location getlocation = repository.findByCode(code);
+
+        RealtimeWeather realtimeWeather = getlocation.getRealtimeWeather();
+
+        if (realtimeWeather == null) {
+            realtimeWeather = RealtimeWeather.builder()
+                    .location(getlocation)
+                    .build();
+            getlocation.setRealtimeWeather(realtimeWeather);
+        }
+
+        realtimeWeather = realtimeWeather.toBuilder()
+                .temperature(-1)
+                .humidity(30)
+                .precipitation(40)
+                .status("Snowy")
+                .windSpeed(15)
+                .lastUpdated(LocalDateTime.of(2023, 3, 2, 15, 30))
+                .build();
+
+        getlocation.setRealtimeWeather(realtimeWeather);
+
+        // when
+        Location updatedLocation = repository.save(getlocation);
+
+        // then
+        assertEquals(updatedLocation.getRealtimeWeather().getLocationCode(), code);
+        assertEquals(updatedLocation.getRealtimeWeather().getTemperature(), -1);
+        assertEquals(updatedLocation.getRealtimeWeather().getPrecipitation(), 40);
+        assertEquals(updatedLocation.getRealtimeWeather().getStatus(), "Snowy");
+        assertEquals(updatedLocation.getRealtimeWeather().getWindSpeed(), 15);
+        assertEquals(updatedLocation.getRealtimeWeather().getLastUpdated(), LocalDateTime.of(2023, 3, 2, 15, 30));
     }
 }
