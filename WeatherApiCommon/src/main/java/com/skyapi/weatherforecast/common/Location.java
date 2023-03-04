@@ -56,6 +56,14 @@ public class Location {
     @PrimaryKeyJoinColumn
     private RealtimeWeather realtimeWeather;
 
+    public Location(String city, String region, String countryLong, String countryShort) {
+        super();
+        this.cityName = cityName;
+        this.regionName = regionName;
+        this.countryName = countryName;
+        this.countryCode = countryCode;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(code);
