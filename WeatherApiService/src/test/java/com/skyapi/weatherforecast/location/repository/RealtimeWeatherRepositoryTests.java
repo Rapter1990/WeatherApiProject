@@ -85,4 +85,29 @@ public class RealtimeWeatherRepositoryTests extends BaseRepositoryTests {
         assertEquals(realtimeWeather.getLocation().getCityName(), cityName);
     }
 
+    @Test
+    public void testFindByLocationNotFound() {
+        String locationCode = "ABCXYZ";
+        RealtimeWeather realtimeWeather = repo.findByLocationCode(locationCode);
+
+        assertThat(realtimeWeather).isNull();
+    }
+
+    @Test
+    public void testFindByTrashedLocationNotFound() {
+        String locationCode = "NYC_USA";
+        RealtimeWeather realtimeWeather = repo.findByLocationCode(locationCode);
+
+        assertThat(realtimeWeather).isNull();
+    }
+
+    @Test
+    public void testFindByLocationFound() {
+        String locationCode = "DELHI_IN";
+        RealtimeWeather realtimeWeather = repo.findByLocationCode(locationCode);
+
+        assertThat(realtimeWeather).isNotNull();
+        assertThat(realtimeWeather.getLocationCode()).isEqualTo(locationCode);
+    }
+
 }
