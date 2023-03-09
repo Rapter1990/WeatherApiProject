@@ -3,7 +3,6 @@ package com.skyapi.weatherforecast.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
@@ -54,6 +53,7 @@ public class Location {
 
     @OneToOne(mappedBy = "location", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
+    @JsonIgnore
     private RealtimeWeather realtimeWeather;
 
     public Location(String city, String region, String countryLong, String countryShort) {
@@ -83,7 +83,6 @@ public class Location {
 
     @Override
     public String toString() {
-        return "Location [code=" + code + ", cityName=" + cityName + ", regionName=" + regionName + ", countryName="
-                + countryName + ", countryCode=" + countryCode + ", enabled=" + enabled + ", trashed=" + trashed + "]";
+        return cityName + ", " + (regionName != null ? regionName : "") + ", " + countryName;
     }
 }

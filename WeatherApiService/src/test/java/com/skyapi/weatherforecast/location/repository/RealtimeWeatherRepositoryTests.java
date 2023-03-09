@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RealtimeWeatherRepositoryTests extends BaseRepositoryTests {
@@ -56,4 +57,32 @@ public class RealtimeWeatherRepositoryTests extends BaseRepositoryTests {
         assertEquals(updatedRealtimeWeather.getWindSpeed(), 12);
         assertEquals(updatedRealtimeWeather.getLastUpdated(), LocalDateTime.of(2023, 3, 2, 15, 30));
     }
+
+    @Test
+    public void testFindByCountryCodeAndCityNotFound() {
+        // given
+        String countryCode = "JP";
+        String cityName = "Tokyo";
+
+        // when
+        RealtimeWeather realtimeWeather = repo.findByCountryCodeAndCity(countryCode, cityName);
+
+        // then
+        assertThat(realtimeWeather).isNull();
+    }
+
+    @Test
+    public void testFindByCountryCodeAndCityFound() {
+        // given
+        String countryCode = "US";
+        String cityName = "New York City";
+
+        // when
+        RealtimeWeather realtimeWeather = repo.findByCountryCodeAndCity(countryCode, cityName);
+
+        // then
+        assertThat(realtimeWeather).isNotNull();
+        assertEquals(realtimeWeather.getLocation().getCityName(), cityName);
+    }
+
 }
