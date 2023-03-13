@@ -180,4 +180,102 @@ public class RealtimeWeatherApiControllerTests extends BaseRestControllerTest {
                 .andDo(print());
     }
 
+
+    @Test
+    public void testUpdateShouldReturn400BadRequest() throws Exception {
+        String locationCode = "ABC_US";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+
+        RealtimeWeather realtimeWeather = RealtimeWeather.builder()
+                .temperature(120)
+                .humidity(132)
+                .lastUpdated(LocalDateTime.of(2023, 3, 2, 15, 30))
+                .precipitation(188)
+                .status("Cl")
+                .windSpeed(500)
+                .build();
+
+        String bodyContent = mapper.writeValueAsString(realtimeWeather);
+
+        mockMvc.perform(put(requestURI).contentType("application/json").content(bodyContent))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    public void testUpdateShouldReturn404NotFound() throws Exception {
+        String locationCode = "ABC_US";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+
+        RealtimeWeather realtimeWeather = RealtimeWeather.builder()
+                .temperature(12)
+                .humidity(32)
+                .lastUpdated(LocalDateTime.of(2023, 3, 2, 15, 30))
+                .precipitation(88)
+                .status("Cloudy")
+                .windSpeed(5)
+                .locationCode(locationCode)
+                .build();
+
+
+        when(realtimeWeatherService.update(locationCode, realtimeWeather)).thenThrow(LocationNotFoundException.class);
+
+        String bodyContent = mapper.writeValueAsString(realtimeWeather);
+
+        mockMvc.perform(put(requestURI).contentType("application/json").content(bodyContent))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testUpdateShouldReturn200OK() throws Exception {
+        String locationCode = "SFCA_US";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        // given
+        Location location = Location.builder()
+                .code(locationCode)
+                .cityName("San Franciso")
+                .regionName("California")
+                .countryName("United States of America")
+                .countryCode("US")
+                .build();
+
+        RealtimeWeather realtimeWeather = RealtimeWeather.builder()
+                .temperature(12)
+                .humidity(32)
+                .lastUpdated(LocalDateTime.of(2023, 3, 2, 15, 30))
+                .precipitation(88)
+                .status("Cloudy")
+                .windSpeed(5)
+                .build();
+
+        RealtimeWeatherDTO realtimeWeatherDTO = RealtimeWeatherDTO.builder()
+                .location(location.getCityName() + ", " + location.getRegionName() + ", " + location.getCountryName())
+                .temperature(12)
+                .humidity(32)
+                .precipitation(88)
+                .status("Cloudy")
+                .windSpeed(5)
+                .lastUpdated(LocalDateTime.of(2023, 3, 2, 15, 30))
+                .build();
+
+        realtimeWeather.setLocation(location);
+        location.setRealtimeWeather(realtimeWeather);
+
+        when(realtimeWeatherService.update(locationCode, realtimeWeather)).thenReturn(realtimeWeather);
+        when(modelMapper.map(realtimeWeather, RealtimeWeatherDTO.class)).thenReturn(realtimeWeatherDTO);
+
+        String bodyContent = mapper.writeValueAsString(realtimeWeather);
+
+        String expectedLocation = location.getCityName() + ", " + location.getRegionName() + ", " + location.getCountryName();
+
+        mockMvc.perform(put(requestURI).contentType("application/json").content(bodyContent))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.location", is(expectedLocation)))
+                .andDo(print());
+    }
+
 }

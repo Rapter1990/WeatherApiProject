@@ -83,6 +83,6 @@ public class Location {
 
     @Override
     public String toString() {
-        return cityName + ", " + (regionName != null ? regionName : "") + ", " + countryName;
+        return cityName + ", " + (regionName != null ? regionName + ", " : "") + countryName;
     }
 }
