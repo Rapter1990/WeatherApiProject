@@ -1,6 +1,7 @@
 package com.skyapi.weatherforecast.location.repository;
 
 import com.skyapi.weatherforecast.base.BaseRepositoryTests;
+import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.common.RealtimeWeather;
 import org.junit.jupiter.api.Test;
@@ -227,5 +228,31 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
         assertEquals(updatedLocation.getRealtimeWeather().getStatus(), "Snowy");
         assertEquals(updatedLocation.getRealtimeWeather().getWindSpeed(), 15);
         assertEquals(updatedLocation.getRealtimeWeather().getLastUpdated(), LocalDateTime.of(2023, 3, 2, 15, 30));
+    }
+
+
+    @Test
+    public void testAddHourlyWeatherData() {
+        Location location = repository.findById("NYC_USA").get();
+
+        List<HourlyWeather> listHourlyWeather = location.getListHourlyWeather();
+
+        HourlyWeather forecast1 = new HourlyWeather().id(location, 10)
+                .temperature(15)
+                .precipitation(40)
+                .status("Sunny");
+        HourlyWeather forecast2 = new HourlyWeather()
+                .location(location)
+                .hourOfDay(11)
+                .temperature(16)
+                .precipitation(50)
+                .status("Cloudy");
+
+        listHourlyWeather.add(forecast1);
+        listHourlyWeather.add(forecast2);
+
+        Location updatedLocation = repository.save(location);
+
+        assertThat(updatedLocation.getListHourlyWeather()).isNotEmpty();
     }
 }

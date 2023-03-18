@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -56,12 +58,20 @@ public class Location {
     @JsonIgnore
     private RealtimeWeather realtimeWeather;
 
+    @OneToMany(mappedBy = "id.location", cascade = CascadeType.ALL)
+    private List<HourlyWeather> listHourlyWeather = new ArrayList<>();
+
     public Location(String city, String region, String countryLong, String countryShort) {
         super();
         this.cityName = cityName;
         this.regionName = regionName;
         this.countryName = countryName;
         this.countryCode = countryCode;
+    }
+
+    public Location code(String code) {
+        setCode(code);
+        return this;
     }
 
     @Override
