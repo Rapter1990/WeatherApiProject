@@ -61,7 +61,7 @@ public class Location {
     @OneToMany(mappedBy = "id.location", cascade = CascadeType.ALL)
     private List<HourlyWeather> listHourlyWeather = new ArrayList<>();
 
-    public Location(String city, String region, String countryLong, String countryShort) {
+    public Location(String cityName, String regionName, String countryName, String countryCode) {
         super();
         this.cityName = cityName;
         this.regionName = regionName;

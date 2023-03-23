@@ -255,4 +255,27 @@ public class LocationRepositoryTests extends BaseRepositoryTests {
 
         assertThat(updatedLocation.getListHourlyWeather()).isNotEmpty();
     }
+
+    @Test
+    public void testFindByCountryCodeAndCityNameNotFound() {
+        String countryCode = "IN";
+        String cityName = "Delhi";
+
+        Location location = repository.findByCountryCodeAndCityName(countryCode, cityName);
+
+        assertThat(location).isNull();
+    }
+
+    @Test
+    public void testFindByCountryCodeAndCityNameFound() {
+
+        String countryCode = "US";
+        String cityName = "New York City";
+
+        Location location = repository.findByCountryCodeAndCityName(countryCode, cityName);
+
+        assertThat(location).isNotNull();
+        assertThat(location.getCountryCode()).isEqualTo(countryCode);
+        assertThat(location.getCityName()).isEqualTo(cityName);
+    }
 }

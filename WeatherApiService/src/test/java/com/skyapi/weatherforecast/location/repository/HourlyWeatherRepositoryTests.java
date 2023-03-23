@@ -7,6 +7,7 @@ import com.skyapi.weatherforecast.common.Location;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,5 +52,25 @@ public class HourlyWeatherRepositoryTests extends BaseRepositoryTests {
 
         Optional<HourlyWeather> result = repo.findById(id);
         assertThat(result).isNotPresent();
+    }
+
+    @Test
+    public void testFindByLocationCodeFound() {
+        String locationCode = "DELHI_IN";
+        int currentHour = 10;
+
+        List<HourlyWeather> hourlyForecast = repo.findByLocationCode(locationCode, currentHour);
+
+        assertThat(hourlyForecast).isNotEmpty();
+    }
+
+    @Test
+    public void testFindByLocationCodeNotFound() {
+        String locationCode = "MBMH_IN";
+        int currentHour = 6;
+
+        List<HourlyWeather> hourlyForecast = repo.findByLocationCode(locationCode, currentHour);
+
+        assertThat(hourlyForecast).isEmpty();
     }
 }
