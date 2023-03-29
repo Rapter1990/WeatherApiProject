@@ -1,4 +1,4 @@
-package com.skyapi.weatherforecast.location.repository;
+package com.skyapi.weatherforecast.hourly.repository;
 
 import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.HourlyWeatherId;

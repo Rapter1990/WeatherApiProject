@@ -1,4 +1,4 @@
-package com.skyapi.weatherforecast.location.dto;
+package com.skyapi.weatherforecast.realtime.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;

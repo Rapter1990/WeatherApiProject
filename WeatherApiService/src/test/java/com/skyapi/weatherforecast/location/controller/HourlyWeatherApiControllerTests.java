@@ -1,25 +1,24 @@
 package com.skyapi.weatherforecast.location.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skyapi.weatherforecast.base.BaseRestControllerTest;
 import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.HourlyWeatherId;
 import com.skyapi.weatherforecast.common.Location;
+import com.skyapi.weatherforecast.exception.GeolocationException;
+import com.skyapi.weatherforecast.exception.LocationNotFoundException;
 import com.skyapi.weatherforecast.location.service.GeolocationService;
-import com.skyapi.weatherforecast.location.service.HourlyWeatherService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.skyapi.weatherforecast.hourly.service.HourlyWeatherService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,11 +29,11 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
 
     private static final String END_POINT_PATH = "/v1/hourly";
 
+    private static final String X_CURRENT_HOUR = "X-Current-Hour";
+
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    ObjectMapper mapper;
 
     @MockBean
     HourlyWeatherService hourlyWeatherService;
@@ -42,8 +41,6 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
     @MockBean
     GeolocationService locationService;
 
-    @Mock
-    HttpServletRequest request;
 
     @Test
     public void testListHourlyForecastByIPAddress() throws Exception {
@@ -52,7 +49,7 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
         int currentHour = 5;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Current-Hour", String.valueOf(currentHour));
+        headers.set(X_CURRENT_HOUR, String.valueOf(currentHour));
 
         // given
         Location location = Location.builder()
@@ -63,6 +60,8 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
                 .countryName("United States of America")
                 .enabled(true)
                 .build();
+
+        String expectedLocation = location.toString();
 
         HourlyWeather hourlyWeather1 = HourlyWeather.builder()
                 .id(new HourlyWeatherId(12, location))
@@ -85,7 +84,7 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
 
 
         MockHttpServletRequestBuilder requestBuilder = get(END_POINT_PATH)
-                .header("X-Current-Hour", String.valueOf(currentHour))
+                .header(X_CURRENT_HOUR, String.valueOf(currentHour))
                 .contentType("application/json")
                 .with(request -> {
                     request.setRemoteAddr(ipAddress);
@@ -96,10 +95,41 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
         mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$[0].temperature", is(20)))
-                .andExpect(jsonPath("$[0].precipitation", is(10)))
-                .andExpect(jsonPath("$[1].temperature", is(20)))
-                .andExpect(jsonPath("$[1].precipitation", is(10)))
+                .andExpect(jsonPath("$.location", is(expectedLocation)))
+                .andExpect(jsonPath("$.hourly_forecast[0].temperature", is(20)))
+                .andExpect(jsonPath("$.hourly_forecast[0].precipitation", is(10)))
+                .andExpect(jsonPath("$.hourly_forecast[1].temperature", is(20)))
+                .andExpect(jsonPath("$.hourly_forecast[1].precipitation", is(10)))
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByIPShouldReturn400BadRequestBecauseNoHeaderXCurrentHour() throws Exception {
+        mockMvc.perform(get(END_POINT_PATH))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByIPShouldReturn400BadRequestBecauseGeolocationException() throws Exception {
+
+        when(locationService.getLocation(anyString())).thenThrow(GeolocationException.class);
+
+        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, "9"))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByIPShouldReturn404NotFound() throws Exception {
+        Location location = new Location().code("DELHI_IN");
+        int currentHour = 9;
+
+        when(locationService.getLocation(anyString())).thenReturn(location);
+        when(hourlyWeatherService.getByLocation(location, currentHour)).thenThrow(LocationNotFoundException.class);
+
+        mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 }

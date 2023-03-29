@@ -4,6 +4,7 @@ import com.skyapi.weatherforecast.base.BaseRepositoryTests;
 import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.HourlyWeatherId;
 import com.skyapi.weatherforecast.common.Location;
+import com.skyapi.weatherforecast.hourly.repository.HourlyWeatherRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

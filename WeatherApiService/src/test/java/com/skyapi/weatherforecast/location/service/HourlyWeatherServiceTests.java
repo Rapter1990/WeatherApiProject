@@ -5,12 +5,12 @@ import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.HourlyWeatherId;
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.exception.LocationNotFoundException;
-import com.skyapi.weatherforecast.location.repository.HourlyWeatherRepository;
+import com.skyapi.weatherforecast.hourly.service.HourlyWeatherService;
+import com.skyapi.weatherforecast.hourly.repository.HourlyWeatherRepository;
 import com.skyapi.weatherforecast.location.repository.LocationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.List;

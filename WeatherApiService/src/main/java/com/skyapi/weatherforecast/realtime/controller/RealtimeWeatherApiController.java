@@ -1,12 +1,12 @@
-package com.skyapi.weatherforecast.location.controller;
+package com.skyapi.weatherforecast.realtime.controller;
 
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.common.RealtimeWeather;
 import com.skyapi.weatherforecast.exception.GeolocationException;
 import com.skyapi.weatherforecast.exception.LocationNotFoundException;
-import com.skyapi.weatherforecast.location.dto.RealtimeWeatherDTO;
+import com.skyapi.weatherforecast.realtime.dto.RealtimeWeatherDTO;
 import com.skyapi.weatherforecast.location.service.GeolocationService;
-import com.skyapi.weatherforecast.location.service.RealtimeWeatherService;
+import com.skyapi.weatherforecast.realtime.service.RealtimeWeatherService;
 import com.skyapi.weatherforecast.location.utils.CommonUtility;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

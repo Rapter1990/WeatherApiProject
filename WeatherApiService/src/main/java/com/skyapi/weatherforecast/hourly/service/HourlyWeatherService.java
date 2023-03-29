@@ -1,9 +1,9 @@
-package com.skyapi.weatherforecast.location.service;
+package com.skyapi.weatherforecast.hourly.service;
 
 import com.skyapi.weatherforecast.common.HourlyWeather;
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.exception.LocationNotFoundException;
-import com.skyapi.weatherforecast.location.repository.HourlyWeatherRepository;
+import com.skyapi.weatherforecast.hourly.repository.HourlyWeatherRepository;
 import com.skyapi.weatherforecast.location.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
