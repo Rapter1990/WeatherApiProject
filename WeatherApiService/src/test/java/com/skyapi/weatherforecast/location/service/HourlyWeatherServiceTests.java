@@ -65,4 +65,38 @@ public class HourlyWeatherServiceTests extends BaseServiceTest {
         assertEquals(1, hourlyWeatherList.size());
         assertThat(hourlyWeatherList).contains(mockedHourlyWeather);
     }
+
+    @Test
+    public void testGetByLocationCode() throws LocationNotFoundException {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        String locationCode = location.getCode();
+
+        HourlyWeather mockedHourlyWeather = HourlyWeather.builder()
+                .id(new HourlyWeatherId(10,location))
+                .temperature(15)
+                .precipitation(10)
+                .status("Sunny")
+                .build();
+
+        // when
+        when(locationRepo.findByCode(locationCode)).thenReturn(location);
+        when(hourlyWeatherRepo.findByLocationCode(anyString(), anyInt())).thenReturn(Collections.singletonList(mockedHourlyWeather));
+
+        List<HourlyWeather> hourlyWeatherList = hourlyWeatherService.getByLocationCode(locationCode, 10);
+
+        // then
+        assertEquals(1, hourlyWeatherList.size());
+        assertThat(hourlyWeatherList).contains(mockedHourlyWeather);
+
+    }
 }

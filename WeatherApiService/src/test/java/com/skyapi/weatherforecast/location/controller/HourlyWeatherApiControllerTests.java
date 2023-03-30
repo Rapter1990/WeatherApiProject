@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -130,6 +131,85 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
                 .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByCodeShouldReturn400BadRequest() throws Exception {
+        String locationCode = "DELHI_IN";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        mockMvc.perform(get(requestURI))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByCodeShouldReturn404NotFound() throws Exception {
+        int currentHour = 9;
+        String locationCode = "DELHI_IN";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        when(hourlyWeatherService.getByLocationCode(locationCode, currentHour)).thenThrow(LocationNotFoundException.class);
+
+        mockMvc.perform(get(requestURI).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByCodeShouldReturn204NoContent() throws Exception {
+        int currentHour = 9;
+        String locationCode = "DELHI_IN";
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        when(hourlyWeatherService.getByLocationCode(locationCode, currentHour)).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get(requestURI).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    public void testGetByCodeShouldReturn200OK() throws Exception {
+
+        // given
+        Location location = Location.builder()
+                .code("NYC_USA")
+                .cityName("New York City")
+                .regionName("New York")
+                .countryCode("US")
+                .countryName("United States of America")
+                .enabled(true)
+                .build();
+
+        int currentHour = 11;
+        String locationCode = location.getCode();
+        String requestURI = END_POINT_PATH + "/" + locationCode;
+
+        HourlyWeather hourlyWeather1 = HourlyWeather.builder()
+                .id(new HourlyWeatherId(12, location))
+                .precipitation(10)
+                .temperature(20)
+                .status("Cloudy")
+                .build();
+        HourlyWeather hourlyWeather2 = HourlyWeather.builder()
+                .id(new HourlyWeatherId(13, location))
+                .precipitation(10)
+                .temperature(20)
+                .status("Cloudy")
+                .build();
+
+        List<HourlyWeather> hourlyForecastList = List.of(hourlyWeather1,hourlyWeather2);
+
+        when(hourlyWeatherService.getByLocationCode(locationCode, currentHour)).thenReturn(hourlyForecastList);
+
+        mockMvc.perform(get(requestURI).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.location", is(location.toString())))
+                .andExpect(jsonPath("$.hourly_forecast[0].hour_of_day", is(12)))
+                .andExpect(jsonPath("$.hourly_forecast[1].hour_of_day", is(13)))
                 .andDo(print());
     }
 }
