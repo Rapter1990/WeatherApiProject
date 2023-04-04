@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "weather_hourly")
 @Data
@@ -55,5 +57,34 @@ public class HourlyWeather {
     public HourlyWeather hourOfDay(int hour) {
         this.id.setHourOfDay(hour);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        HourlyWeather other = (HourlyWeather) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    public HourlyWeather getShallowCopy() {
+        HourlyWeather copy = new HourlyWeather();
+        copy.setId(this.getId());
+        return copy;
+    }
+
+    @Override
+    public String toString() {
+        return "HourlyWeather [hourOfDay=" + id.getHourOfDay() + ", temperature=" + temperature + ", precipitation=" + precipitation
+                + ", status=" + status + "]";
     }
 }

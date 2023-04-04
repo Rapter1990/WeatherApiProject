@@ -1,6 +1,7 @@
 package com.skyapi.weatherforecast.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -148,7 +151,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
          */
 
         List<String> details = new ArrayList<String>();
-        details.add(ex.toString());
+        details.add(ex.getMessage());
 
         ErrorDTO error = new ErrorDTO.ErrorDTOBuilder()
                 .timestamp(LocalDateTime.now())
@@ -161,5 +164,53 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.error("GlobalExceptionHandler | handleHttpMessageNotReadable | ex : " + ex );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO handleBadRequestException(HttpServletRequest request, Exception ex) {
+
+        List<String> details = new ArrayList<String>();
+        details.add(ex.getMessage());
+
+        ErrorDTO error = ErrorDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errorDetails(details)
+                .path(request.getServletPath())
+                .build();
+
+        LOGGER.error("GlobalExceptionHandler | handleBadRequestException | ex : " + ex );
+
+        return error;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO handleConstraintViolationException(HttpServletRequest request, Exception ex) {
+
+        List<String> details = new ArrayList<String>();
+
+        ConstraintViolationException violationException = (ConstraintViolationException) ex;
+
+        var constraintViolations = violationException.getConstraintViolations();
+
+        constraintViolations.forEach(constraint -> {
+            details.add(constraint.getPropertyPath() + ": " + constraint.getMessage());
+        });
+
+        ErrorDTO error = ErrorDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errorDetails(details)
+                .path(request.getServletPath())
+                .build();
+
+        LOGGER.error("GlobalExceptionHandler | handleConstraintViolationException | ex : " + ex );
+
+        return error;
     }
 }
