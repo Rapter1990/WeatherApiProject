@@ -2,14 +2,17 @@ package com.skyapi.weatherforecast.location.controller;
 
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.exception.LocationNotFoundException;
+import com.skyapi.weatherforecast.location.dto.LocationDTO;
 import com.skyapi.weatherforecast.location.service.LocationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/locations")
@@ -18,12 +21,14 @@ public class LocationApiController {
 
     private final LocationService service;
 
+    private final ModelMapper modelMapper;
+
     @PostMapping
-    public ResponseEntity<Location> addLocation(@RequestBody @Valid Location location) {
-        Location addedLocation = service.add(location);
+    public ResponseEntity<LocationDTO> addLocation(@RequestBody @Valid LocationDTO locationDTO) {
+        Location addedLocation = service.add(dto2Entity(locationDTO));
         URI uri = URI.create("/v1/locations/" + addedLocation.getCode());
 
-        return ResponseEntity.created(uri).body(addedLocation);
+        return ResponseEntity.created(uri).body(entity2DTO(addedLocation));
     }
 
     @GetMapping
@@ -34,7 +39,7 @@ public class LocationApiController {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(locations);
+        return ResponseEntity.ok(listEntity2ListDTO(locations));
 
     }
 
@@ -46,15 +51,15 @@ public class LocationApiController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(location);
+        return ResponseEntity.ok(entity2DTO(location));
     }
 
     @PutMapping
-    public ResponseEntity<?> updateLocation(@RequestBody @Valid Location location) {
+    public ResponseEntity<?> updateLocation(@RequestBody @Valid LocationDTO locationDTO) {
         try {
-            Location updatedLocation = service.update(location);
+            Location updatedLocation = service.update(dto2Entity(locationDTO));
 
-            return ResponseEntity.ok(updatedLocation);
+            return ResponseEntity.ok(entity2DTO(updatedLocation));
         } catch (LocationNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -69,5 +74,20 @@ public class LocationApiController {
         } catch (LocationNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private List<LocationDTO> listEntity2ListDTO(List<Location> listEntity) {
+
+        return listEntity.stream().map(entity -> entity2DTO(entity))
+                .collect(Collectors.toList());
+
+    }
+
+    private LocationDTO entity2DTO(Location entity) {
+        return modelMapper.map(entity, LocationDTO.class);
+    }
+
+    private Location dto2Entity(LocationDTO dto) {
+        return modelMapper.map(dto, Location.class);
     }
 }

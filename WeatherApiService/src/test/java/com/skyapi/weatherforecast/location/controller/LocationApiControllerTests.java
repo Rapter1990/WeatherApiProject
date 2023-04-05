@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skyapi.weatherforecast.base.BaseRestControllerTest;
 import com.skyapi.weatherforecast.common.Location;
 import com.skyapi.weatherforecast.exception.LocationNotFoundException;
+import com.skyapi.weatherforecast.location.dto.LocationDTO;
 import com.skyapi.weatherforecast.location.service.LocationService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,11 +40,11 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
     public void testAddShouldReturn400BadRequest() throws Exception {
 
         // given
-        Location location = new Location();
+        LocationDTO locationDTO = new LocationDTO();
 
         // when
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         // then
         mockMvc.perform(post(END_POINT_PATH).contentType("application/json").content(bodyContent))
@@ -64,10 +65,20 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
+
+        LocationDTO locationDTO = LocationDTO.builder()
+                .code(location.getCode())
+                .cityName(location.getCityName())
+                .regionName(location.getRegionName())
+                .countryCode(location.getCountryCode())
+                .countryName(location.getCountryName())
+                .enabled(location.isEnabled())
+                .build();
+
         // when
         Mockito.when(service.add(location)).thenReturn(location);
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         // then
         mockMvc.perform(post(END_POINT_PATH).contentType("application/json").content(bodyContent))
@@ -198,7 +209,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
     @Test
     public void testUpdateShouldReturn404NotFound() throws Exception {
 
-        Location location = Location.builder()
+        LocationDTO locationDTO = LocationDTO.builder()
                 .code("ABCDEF")
                 .cityName("Los Angeles")
                 .regionName("California")
@@ -207,9 +218,9 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
-        Mockito.when(service.update(location)).thenThrow(new LocationNotFoundException("No location found"));
+        Mockito.when(service.update(Mockito.any())).thenThrow(new LocationNotFoundException("No location found"));
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(put(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isNotFound())
@@ -227,8 +238,16 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
+        LocationDTO locationDTO = LocationDTO.builder()
+                .cityName(location.getCityName())
+                .regionName(location.getRegionName())
+                .countryCode(location.getCountryCode())
+                .countryName(location.getCountryName())
+                .enabled(location.isEnabled())
+                .build();
 
-        String bodyContent = mapper.writeValueAsString(location);
+
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(put(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isBadRequest())
@@ -247,9 +266,18 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
+        LocationDTO locationDTO = LocationDTO.builder()
+                .code(location.getCode())
+                .cityName(location.getCityName())
+                .regionName(location.getRegionName())
+                .countryCode(location.getCountryCode())
+                .countryName(location.getCountryName())
+                .enabled(location.isEnabled())
+                .build();
+
         Mockito.when(service.update(location)).thenReturn(location);
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(put(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isOk())
@@ -292,7 +320,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
     @Test
     public void testValidateRequestBodyLocationCodeNotNull() throws Exception {
 
-        Location location = Location.builder()
+        LocationDTO locationDTO = LocationDTO.builder()
                 .cityName("New York City")
                 .regionName("New York")
                 .countryCode("US")
@@ -300,7 +328,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(post(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isBadRequest())
@@ -312,7 +340,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
     @Test
     public void testValidateRequestBodyLocationCodeLength() throws Exception {
 
-        Location location = Location.builder()
+        LocationDTO locationDTO = LocationDTO.builder()
                 .code("")
                 .cityName("New York City")
                 .regionName("New York")
@@ -321,7 +349,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(post(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isBadRequest())
@@ -332,10 +360,11 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
 
     @Test
     public void testValidateRequestBodyAllFieldsInvalid() throws Exception {
-        Location location = new Location();
-        location.setRegionName("");
+        LocationDTO locationDTO = LocationDTO.builder()
+                .regionName("")
+                .build();
 
-        String bodyContent = mapper.writeValueAsString(location);
+        String bodyContent = mapper.writeValueAsString(locationDTO);
 
         MvcResult mvcResult = mockMvc.perform(post(END_POINT_PATH)
                 .contentType("application/json").content(bodyContent))
