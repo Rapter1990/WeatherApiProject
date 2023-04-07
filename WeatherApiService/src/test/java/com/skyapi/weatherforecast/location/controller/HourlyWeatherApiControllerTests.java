@@ -119,10 +119,12 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
     @Test
     public void testGetByIPShouldReturn400BadRequestBecauseGeolocationException() throws Exception {
 
-        when(locationService.getLocation(anyString())).thenThrow(GeolocationException.class);
+        GeolocationException ex = new GeolocationException("Geolocation error");
+        when(locationService.getLocation(anyString())).thenThrow(ex);
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, "9"))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -130,12 +132,14 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
     public void testGetByIPShouldReturn404NotFound() throws Exception {
         Location location = new Location().code("DELHI_IN");
         int currentHour = 9;
+        LocationNotFoundException ex = new LocationNotFoundException(location.getCode());
 
         when(locationService.getLocation(anyString())).thenReturn(location);
-        when(hourlyWeatherService.getByLocation(location, currentHour)).thenThrow(LocationNotFoundException.class);
+        when(hourlyWeatherService.getByLocation(location, currentHour)).thenThrow(ex);
 
         mockMvc.perform(get(END_POINT_PATH).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -154,11 +158,13 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
         int currentHour = 9;
         String locationCode = "DELHI_IN";
         String requestURI = END_POINT_PATH + "/" + locationCode;
+        LocationNotFoundException ex = new LocationNotFoundException(locationCode);
 
-        when(hourlyWeatherService.getByLocationCode(locationCode, currentHour)).thenThrow(LocationNotFoundException.class);
+        when(hourlyWeatherService.getByLocationCode(locationCode, currentHour)).thenThrow(ex);
 
         mockMvc.perform(get(requestURI).header(X_CURRENT_HOUR, String.valueOf(currentHour)))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -279,11 +285,14 @@ public class HourlyWeatherApiControllerTests extends BaseRestControllerTest {
 
         String requestBody = objectMapper.writeValueAsString(listDTO);
 
+        LocationNotFoundException ex = new LocationNotFoundException(locationCode);
+
         when(hourlyWeatherService.updateByLocationCode(eq(locationCode), anyList()))
-                .thenThrow(LocationNotFoundException.class);
+                .thenThrow(ex);
 
         mockMvc.perform(put(requestURI).contentType(MediaType.APPLICATION_JSON).content(requestBody))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 

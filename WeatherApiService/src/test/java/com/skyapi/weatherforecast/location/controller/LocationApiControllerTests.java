@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -76,7 +79,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .build();
 
         // when
-        Mockito.when(service.add(location)).thenReturn(location);
+        when(service.add(location)).thenReturn(location);
 
         String bodyContent = mapper.writeValueAsString(locationDTO);
 
@@ -96,7 +99,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
         // given
 
         // when
-        Mockito.when(service.list()).thenReturn(Collections.emptyList());
+        when(service.list()).thenReturn(Collections.emptyList());
 
         // then
         mockMvc.perform(get(END_POINT_PATH))
@@ -127,7 +130,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .build();
 
         // when
-        Mockito.when(service.list()).thenReturn(List.of(location1, location2));
+        when(service.list()).thenReturn(List.of(location1, location2));
 
         // then
         mockMvc.perform(get(END_POINT_PATH))
@@ -191,7 +194,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .build();
 
         // when
-        Mockito.when(service.get(code)).thenReturn(location);
+        when(service.get(code)).thenReturn(location);
 
         // then
         mockMvc.perform(get(requestURI))
@@ -218,12 +221,15 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(true)
                 .build();
 
-        Mockito.when(service.update(Mockito.any())).thenThrow(new LocationNotFoundException("No location found"));
+        LocationNotFoundException ex = new LocationNotFoundException(locationDTO.getCityName());
+
+        when(service.update(any())).thenThrow(ex);
 
         String bodyContent = mapper.writeValueAsString(locationDTO);
 
         mockMvc.perform(put(END_POINT_PATH).contentType("application/json").content(bodyContent))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -275,7 +281,7 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
                 .enabled(location.isEnabled())
                 .build();
 
-        Mockito.when(service.update(location)).thenReturn(location);
+        when(service.update(location)).thenReturn(location);
 
         String bodyContent = mapper.writeValueAsString(locationDTO);
 
@@ -297,10 +303,13 @@ public class LocationApiControllerTests extends BaseRestControllerTest {
         String code = "NYC_USA";
         String requestURI = END_POINT_PATH + "/" + code;
 
-        Mockito.doThrow(LocationNotFoundException.class).when(service).delete(code);
+        LocationNotFoundException ex = new LocationNotFoundException(code);
+
+        doThrow(ex).when(service).delete(code);
 
         mockMvc.perform(delete(requestURI))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 

@@ -47,33 +47,21 @@ public class LocationApiController {
     public ResponseEntity<?> getLocation(@PathVariable("code") String code) {
         Location location = service.get(code);
 
-        if (location == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(entity2DTO(location));
     }
 
     @PutMapping
     public ResponseEntity<?> updateLocation(@RequestBody @Valid LocationDTO locationDTO) {
-        try {
-            Location updatedLocation = service.update(dto2Entity(locationDTO));
+        Location updatedLocation = service.update(dto2Entity(locationDTO));
 
-            return ResponseEntity.ok(entity2DTO(updatedLocation));
-        } catch (LocationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(entity2DTO(updatedLocation));
     }
 
     @DeleteMapping("/{code}")
     public ResponseEntity<?> deleteLocation(@PathVariable("code") String code) {
-        try {
-            service.delete(code);
+        service.delete(code);
 
-            return ResponseEntity.noContent().build();
-        } catch (LocationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.noContent().build();
     }
 
     private List<LocationDTO> listEntity2ListDTO(List<Location> listEntity) {

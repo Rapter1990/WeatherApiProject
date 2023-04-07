@@ -48,22 +48,31 @@ public class RealtimeWeatherApiControllerTests extends BaseRestControllerTest {
 
     @Test
     public void testGetShouldReturnStatus400BadRequest() throws Exception {
-        when(locationService.getLocation(anyString())).thenThrow(GeolocationException.class);
+
+        GeolocationException ex = new GeolocationException("Geolocation error");
+        when(locationService.getLocation(anyString())).thenThrow(ex);
 
         mockMvc.perform(get(END_POINT_PATH))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
     @Test
     public void testGetShouldReturnStatus404NotFound() throws Exception {
-        Location location = new Location();
+        Location location = Location.builder()
+                .countryCode("US")
+                .cityName("Tampa")
+                .build();
+
+        LocationNotFoundException ex = new LocationNotFoundException(location.getCountryCode(), location.getCityName());
 
         when(locationService.getLocation(anyString())).thenReturn(location);
-        when(realtimeWeatherService.getByLocation(location)).thenThrow(LocationNotFoundException.class);
+        when(realtimeWeatherService.getByLocation(location)).thenThrow(ex);
 
         mockMvc.perform(get(END_POINT_PATH))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -120,12 +129,14 @@ public class RealtimeWeatherApiControllerTests extends BaseRestControllerTest {
     public void testGetByLocationCodeShouldReturnStatus404NotFound() throws Exception {
         String locationCode = "ABC_US";
 
-        when(realtimeWeatherService.getByLocationCode(locationCode)).thenThrow(LocationNotFoundException.class);
+        LocationNotFoundException ex = new LocationNotFoundException(locationCode);
+        when(realtimeWeatherService.getByLocationCode(locationCode)).thenThrow(ex);
 
         String requestURI = END_POINT_PATH + "/" + locationCode;
 
         mockMvc.perform(get(requestURI))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 
@@ -219,13 +230,14 @@ public class RealtimeWeatherApiControllerTests extends BaseRestControllerTest {
                 .locationCode(locationCode)
                 .build();
 
-
-        when(realtimeWeatherService.update(locationCode, realtimeWeather)).thenThrow(LocationNotFoundException.class);
+        LocationNotFoundException ex = new LocationNotFoundException(locationCode);
+        when(realtimeWeatherService.update(locationCode, realtimeWeather)).thenThrow(ex);
 
         String bodyContent = mapper.writeValueAsString(realtimeWeather);
 
         mockMvc.perform(put(requestURI).contentType("application/json").content(bodyContent))
                 .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorDetails[0]", is(ex.getMessage())))
                 .andDo(print());
     }
 

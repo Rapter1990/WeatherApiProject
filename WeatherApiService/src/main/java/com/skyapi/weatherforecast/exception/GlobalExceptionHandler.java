@@ -167,7 +167,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler({BadRequestException.class, GeolocationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public ErrorDTO handleBadRequestException(HttpServletRequest request, Exception ex) {
@@ -210,6 +210,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         LOGGER.error("GlobalExceptionHandler | handleConstraintViolationException | ex : " + ex );
+
+        return error;
+    }
+
+
+    @ExceptionHandler(LocationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorDTO handleLocationNotFoundException(HttpServletRequest request, Exception ex) {
+
+        List<String> details = new ArrayList<String>();
+        details.add(ex.getMessage());
+
+        ErrorDTO error = ErrorDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .errorDetails(details)
+                .path(request.getServletPath())
+                .build();
+
+
+        LOGGER.error("GlobalExceptionHandler | handleLocationNotFoundException | ex : " + ex );
 
         return error;
     }

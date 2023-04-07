@@ -50,13 +50,9 @@ public class HourlyWeatherApiController {
 
             return ResponseEntity.ok(listEntity2DTO(hourlyForecast));
 
-        } catch (NumberFormatException | GeolocationException ex) {
+        } catch (NumberFormatException ex) {
 
             return ResponseEntity.badRequest().build();
-
-        } catch (LocationNotFoundException ex) {
-
-            return ResponseEntity.notFound().build();
         }
 
     }
@@ -95,9 +91,6 @@ public class HourlyWeatherApiController {
 
             return ResponseEntity.badRequest().build();
 
-        } catch (LocationNotFoundException ex) {
-
-            return ResponseEntity.notFound().build();
         }
     }
 
@@ -118,13 +111,9 @@ public class HourlyWeatherApiController {
 
         listHourlyWeather.forEach(System.out::println);
 
-        try {
-            List<HourlyWeather> updateHourlyWeather = hourlyWeatherService.updateByLocationCode(locationCode, listHourlyWeather);
+        List<HourlyWeather> updateHourlyWeather = hourlyWeatherService.updateByLocationCode(locationCode, listHourlyWeather);
 
-            return ResponseEntity.ok(listEntity2DTO(updateHourlyWeather));
-        } catch (LocationNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(listEntity2DTO(updateHourlyWeather));
     }
 
     private List<HourlyWeather> listDTO2ListEntity(List<HourlyWeatherDTO> listDTO) {
