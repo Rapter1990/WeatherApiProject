@@ -3,15 +3,14 @@ package com.skyapi.weatherforecast.realtime.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.PreUpdate;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RealtimeWeatherDTO {
 
     private String location;

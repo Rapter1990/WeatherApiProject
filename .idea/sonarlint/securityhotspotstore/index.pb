@@ -7,14 +7,8 @@ fWeatherApiService/src/main/java/com/skyapi/weatherforecast/location/repository/
 pWeatherApiService/src/test/java/com/skyapi/weatherforecast/location/repository/HourlyWeatherRepositoryTests.java,0\a\0a38d3cf1aadd8883d6a6254099115812c3507ce
 ô
 iWeatherApiService/src/main/java/com/skyapi/weatherforecast/hourly/repository/HourlyWeatherRepository.java,1\b\1bad4ea0aef20b33b9237b9508300175af590073
-è
-_WeatherApiService/src/main/java/com/skyapi/weatherforecast/realtime/dto/RealtimeWeatherDTO.java,a\f\afa0a0cc1c7cea19e2e4ebe917b108e9455c507f
 ù
 mWeatherApiService/src/main/java/com/skyapi/weatherforecast/realtime/repository/RealtimeWeatherRepository.java,c\2\c294242ef984fe2113fb056e77711612fa1d50d3
-ó
-gWeatherApiService/src/main/java/com/skyapi/weatherforecast/realtime/service/RealtimeWeatherService.java,2\7\27643c81e9419d3c06e073af52f404021cdad9d2
-è
-_WeatherApiService/src/main/java/com/skyapi/weatherforecast/hourly/dto/HourlyWeatherListDTO.java,7\a\7ad49d0aa089577edaf3a8d2078928f940d93ee6
 å
 \WeatherApiService/src/main/java/com/skyapi/weatherforecast/location/utils/CommonUtility.java,5\0\503846acf08e0933bdfc24735d38219061e9e1b1
 Ç
@@ -91,10 +85,6 @@ w
 G.idea/sonarlint/issuestore/7/a/7ad49d0aa089577edaf3a8d2078928f940d93ee6,4\2\42358e547b42fcfc5dc56da0c0e2c3c41255416f
 å
 \WeatherApiService/src/main/java/com/skyapi/weatherforecast/WeatherApiServiceApplication.java,b\a\ba341f06c0393fb921ce92e7c26dd871c9dc8ebd
-à
-XWeatherApiService/src/main/java/com/skyapi/weatherforecast/location/dto/LocationDTO.java,3\2\32ed95af6e769e91108d65b69628aab93249e46c
-ã
-[WeatherApiService/src/main/java/com/skyapi/weatherforecast/hourly/dto/HourlyWeatherDTO.java,9\e\9e0afe1cf7e4201f8496670f4eb322facc2a2198
 ã
 [WeatherApiService/src/test/java/com/skyapi/weatherforecast/base/BaseRestControllerTest.java,7\a\7ac926eecf8b3a52f107a7574ec9a0e3731a0bb2
 ö
