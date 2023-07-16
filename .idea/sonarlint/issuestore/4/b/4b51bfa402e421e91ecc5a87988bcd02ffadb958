@@ -1,6 +1,0 @@
-
-9
-java:S2629-"$Invoke method(s) only conditionally.(ìª£
-f	java:S116"QRename this field "DBPath" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ø÷ïâ
-^
-java:S1075"ARefactor your code to get this URI from a customizable parameter.(ø÷ïâ8¨òÊ˜û0
